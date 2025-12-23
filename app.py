@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # --- 설정 구간 ---
 # 여기에 본인의 OpenAI API 키를 입력하세요.
-client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
+client = OpenAI(api_key="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")
 DB_PATH = 'ma_database.db'
 # ----------------
 
@@ -72,4 +72,5 @@ def summarize():
 
 if __name__ == '__main__':
     init_db()
+
     app.run(host='0.0.0.0', port=5000, debug=True)
