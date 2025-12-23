@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M&A 정보 아카이브</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { margin-bottom: 30px; text-align: center; }
+        .input-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 40px; }
+        textarea { width: 100%; height: 150px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; font-size: 14px; box-sizing: border-box; resize: none; outline: none; transition: border 0.2s; }
+        textarea:focus { border-color: var(--primary); }
+        button { background: var(--primary); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: opacity 0.2s; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .item-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #edf2f7; }
+        .logo-circle { width: 48px; height: 48px; background: #eff6ff; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; margin-right: 18px; flex-shrink: 0; }
+        .summary-text { font-size: 15px; line-height: 1.5; color: #334155; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 M&A 정보 수집기</h1>
+            <p>기사 전문을 붙여넣으면 한 줄로 요약하여 저장합니다.</p>
+        </div>
+
+        <div class="input-card">
+            <textarea id="articleInput" placeholder="여기에 뉴스 기사를 복사해서 붙여넣으세요..."></textarea>
+            <button id="submitBtn" onclick="process()">분석 및 저장하기</button>
+        </div>
+
+        <div id="listContainer">
+            {% for record in records %}
+            <div class="item-card">
+                <div class="logo-circle">{{ record.split(',')[1].replace('"', '').strip()[:2] }}</div>
+                <div class="summary-text">{{ record }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        async function process() {
+            const input = document.getElementById('articleInput');
+            const btn = document.getElementById('submitBtn');
+            if(!input.value.trim()) return alert("내용을 입력해주세요.");
+
+            btn.disabled = true;
+            btn.innerText = "GPT 분석 중...";
+
+            try {
+                const res = await fetch('/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: input.value })
+                });
+                if(res.ok) {
+                    location.reload();
+                } else {
+                    alert("처리 중 오류가 발생했습니다.");
+                }
+            } catch(e) {
+                alert("서버 연결 실패");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "분석 및 저장하기";
+            }
+        }
+    </script>
+</body>
+</html>
